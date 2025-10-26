@@ -40,9 +40,6 @@ It provides essential editing and validation features while maintaining a simple
 Tool UI:
 <img width="901" height="631" alt="image" src="https://github.com/user-attachments/assets/6dec1772-111c-452c-8ae3-5dd85b987e15" />
 
-Hierarchical tree representing the .arxml file and a property table that could be edited
-<img width="1044" height="692" alt="image" src="https://github.com/user-attachments/assets/8b9c274d-7829-49d3-9385-ffffe5d7e70b" />
-
 When the validate button is pressed, the user is asked to provide the .xsd file to be checked against.
 <img width="1047" height="689" alt="image" src="https://github.com/user-attachments/assets/ef1b838f-b10c-41cb-a77a-0f4de07b3471" />
 
