@@ -46,6 +46,8 @@ Hierarchical tree representing the .arxml file and a property table that could b
 When the validate button is pressed, the user is asked to provide the .xsd file to be checked against.
 <img width="1047" height="689" alt="image" src="https://github.com/user-attachments/assets/ef1b838f-b10c-41cb-a77a-0f4de07b3471" />
 
+Adding a child node.
+<img width="1421" height="438" alt="image" src="https://github.com/user-attachments/assets/09f1fc28-fc5c-451d-b2cd-7d05b36f75c0" />
 
 
 
