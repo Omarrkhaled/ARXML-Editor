@@ -1,0 +1,5 @@
+/home/osaleh/Desktop/arxml_editor_project/build-win/CMakeFiles/arxml_editor.dir
+/home/osaleh/Desktop/arxml_editor_project/build-win/CMakeFiles/edit_cache.dir
+/home/osaleh/Desktop/arxml_editor_project/build-win/CMakeFiles/rebuild_cache.dir
+/home/osaleh/Desktop/arxml_editor_project/build-win/CMakeFiles/arxml_editor_autogen_timestamp_deps.dir
+/home/osaleh/Desktop/arxml_editor_project/build-win/CMakeFiles/arxml_editor_autogen.dir
