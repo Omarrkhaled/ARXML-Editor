@@ -1,3 +1,0 @@
-/usr/bin/cmake -E rm -f CMakeFiles/arxml_editor.dir/objects.a
-/usr/bin/ar qc CMakeFiles/arxml_editor.dir/objects.a @CMakeFiles/arxml_editor.dir/objects1.rsp
-/usr/bin/x86_64-w64-mingw32-g++ -Wl,--whole-archive CMakeFiles/arxml_editor.dir/objects.a -Wl,--no-whole-archive -o arxml_editor.exe -Wl,--out-implib,libarxml_editor.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles/arxml_editor.dir/linkLibs.rsp
