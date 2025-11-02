@@ -1,19 +1,14 @@
 // arxml_validator.cpp
 //
-// Implements ArxmlValidator. Validation is performed by running the
-// `xmllint` command-line tool via QProcess. The model's document is
-// written to a temporary ARXML file, then validated against the given
-// schema. The command's stderr output is captured and returned to
-// indicate errors.
+// Validator implementation using xmllint command-line tool
 
 #include "arxml_validator.hpp"
 #include "arxml_model.hpp"
 
-#include <QDomDocument>
 #include <QTemporaryFile>
 #include <QProcess>
 #include <QDir>
-#include <QTextStream>
+#include <QFileInfo>
 
 QString ArxmlValidator::validate(const ArxmlModel &model, const QString &schemaFile) const
 {
@@ -22,10 +17,12 @@ QString ArxmlValidator::validate(const ArxmlModel &model, const QString &schemaF
     if (!tmpFile.open()) {
         return QStringLiteral("Failed to create temporary file for validation.");
     }
-    QTextStream out(&tmpFile);
-    model.document().save(out, 4);
-    out.flush();
     tmpFile.close();
+
+    // Save model to temp file
+    if (!model.saveToFile(tmpFile.fileName())) {
+        return QStringLiteral("Failed to write document to temporary file.");
+    }
 
     // Prepare arguments for xmllint
     QStringList args;
@@ -38,6 +35,7 @@ QString ArxmlValidator::validate(const ArxmlModel &model, const QString &schemaF
     }
 
     const QByteArray stderrOutput = process.readAllStandardError();
+    
     // A zero exit code indicates success. If non-zero, return stderr or a
     // generic error message.
     if (process.exitStatus() == QProcess::NormalExit && process.exitCode() == 0) {

@@ -1,56 +1,101 @@
 // arxml_model.hpp
 //
-// This header defines ArxmlModel, a thin wrapper around QDomDocument that
-// encapsulates the logic for loading, saving and manipulating AUTOSAR ARXML
-// documents. By separating DOM management into a distinct class, the main
-// window can focus on presentation and user interactions. This design
-// improves readability and follows the single responsibility principle.
+// ArxmlModel with SAX-based parsing for improved performance with large files.
+// Uses an internal tree structure for manipulation and QXmlStreamWriter for saving.
 
 #ifndef ARXML_MODEL_HPP
 #define ARXML_MODEL_HPP
 
-#include <QDomDocument>
 #include <QString>
+#include <QVariant>
+#include <memory>
+#include <vector>
+
+class ArxmlElement
+{
+public:
+    QString tagName;
+    QString text;
+    std::vector<std::pair<QString, QString>> attributes;
+    std::vector<std::shared_ptr<ArxmlElement>> children;
+    ArxmlElement* parent = nullptr;
+
+    ArxmlElement() = default;
+    
+    std::shared_ptr<ArxmlElement> createChild(const QString& name) {
+        auto child = std::make_shared<ArxmlElement>();
+        child->tagName = name;
+        child->parent = this;
+        children.push_back(child);
+        return child;
+    }
+
+    void removeChild(std::shared_ptr<ArxmlElement> child) {
+        children.erase(
+            std::remove_if(children.begin(), children.end(),
+                [child](const std::shared_ptr<ArxmlElement>& ptr) { return ptr == child; }),
+            children.end()
+        );
+    }
+
+    void setAttribute(const QString& name, const QString& value) {
+        for (auto& attr : attributes) {
+            if (attr.first == name) {
+                attr.second = value;
+                return;
+            }
+        }
+        attributes.push_back({name, value});
+    }
+
+    QString getAttribute(const QString& name) const {
+        for (const auto& attr : attributes) {
+            if (attr.first == name) {
+                return attr.second;
+            }
+        }
+        return QString();
+    }
+};
 
 class ArxmlModel
 {
 public:
-    // Load an ARXML file into the internal document. Returns true on success.
+    ArxmlModel();
+    ~ArxmlModel();
+
+    // Load an ARXML file using SAX parser. Returns true on success.
     bool loadFromFile(const QString &fileName);
 
-    // Save the current document to the specified file. Returns true on success.
+    // Save using QXmlStreamWriter. Returns true on success.
     bool saveToFile(const QString &fileName) const;
 
-    // Access the underlying QDomDocument. Used by other components to query
-    // or modify the model. Modifications made directly to this document will
-    // affect the model state.
-    QDomDocument &document() { return m_document; }
-    const QDomDocument &document() const { return m_document; }
+    // Access the root element
+    std::shared_ptr<ArxmlElement> rootElement() const { return m_root; }
 
-    // Return the root node of the document. A null node is returned if
-    // the document is empty.
-    QDomNode rootNode() const;
+    // For validation - get the file path
+    QString filePath() const { return m_filePath; }
 
-    // Create a new child element under the given parent node with the
-    // specified tag name. Returns the newly created node.
-    QDomNode createChild(const QDomNode &parent, const QString &tagName);
+    // Get error message if load failed
+    QString lastError() const { return m_lastError; }
 
-    // Remove the specified node from its parent. Does nothing if the node
-    // has no parent or is null.
-    void removeNode(const QDomNode &node);
-
-    // Set the text content of an element. If the element already has
-    // a text node, it will be replaced; otherwise a new text node is
-    // appended.
-    void setNodeText(const QDomNode &node, const QString &text);
-
-    // Set or update an attribute on an element. If the attribute exists
-    // it will be updated; otherwise it will be added.
-    void setNodeAttribute(const QDomNode &node, const QString &name,
-                          const QString &value);
+    // Find element by index path (list of child indices from root)
+    std::shared_ptr<ArxmlElement> findElementByIndexPath(const QList<int>& indexPath) const;
+    
+    // Get index path to element (list of child indices from root)
+    QList<int> getElementIndexPath(const ArxmlElement* elem) const;
 
 private:
-    QDomDocument m_document;
+    std::shared_ptr<ArxmlElement> m_root;
+    QString m_filePath;
+    QString m_lastError;
+    
+    void saveElement(const ArxmlElement& elem, class QXmlStreamWriter& writer, int indent) const;
+    std::shared_ptr<ArxmlElement> findElementByIndexPathRecursive(
+        const std::shared_ptr<ArxmlElement>& elem, 
+        const QList<int>& indexPath, 
+        int depth) const;
+    int findChildIndex(const ArxmlElement* parent, const ArxmlElement* child) const;
 };
 
 #endif // ARXML_MODEL_HPP
